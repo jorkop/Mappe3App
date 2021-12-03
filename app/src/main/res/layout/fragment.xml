@@ -1,51 +1,130 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:id="@+id/fragment1"
+    android:padding="5dp"
+    android:background="#ffffffff">
 
     <TextView
-        android:text="Adresse"
+        android:layout_width="133dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:text="Endre hus"
+        android:textColor="@color/black"
+        android:textSize="25dp" />
+
+
+    <TextView
+        android:id="@+id/adtekst"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="72dp"
+        android:text="Adresse:"
+        android:textColor="@color/black" />
 
     <EditText
         android:id="@+id/adresse"
-        android:layout_width="wrap_content"
+        android:layout_width="140dp"
         android:layout_height="wrap_content"
-        android:hint="Adresse" />
+        android:layout_marginStart="95dp"
+        android:layout_marginTop="58dp"
+        android:hint="Adresse"
+        android:minHeight="48dp" />
 
     <TextView
-        android:text="Beskrivelse"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="125dp"
+        android:text="Beskrivelse:"
+        android:textColor="@color/black" />
 
     <EditText
         android:id="@+id/beskrivelse"
-        android:hint="Beskrivelse"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_marginStart="95dp"
+        android:layout_marginTop="110dp"
+        android:hint="Beskrivelse"
+        android:minHeight="48dp" />
 
     <TextView
-        android:text="Etasjer"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="178dp"
+        android:text="Etasjer:"
+        android:textColor="@color/black"/>
+
 
     <EditText
         android:id="@+id/etasjer"
+        android:layout_width="96dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="95dp"
+        android:layout_marginTop="160dp"
         android:hint="Etasjer"
+        android:minHeight="48dp" />
+
+    <LinearLayout
+        android:id="@+id/lagre"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="220dp"
+        android:layout_marginRight="40dp"
+        android:layout_marginBottom="20dp"
+        android:background="@color/darkgreen"
+        android:onClick="lagreHus"
+        android:orientation="horizontal"
+        android:padding="5dp">
 
-    <Button
-        android:text="Slett hus"
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_baseline_check_24" />
+
+        <TextView
+            android:layout_width="51dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Lagre"
+            android:textColor="@color/white" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/slett"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_marginStart="120dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginTop="220dp"
+        android:layout_marginEnd="10dp"
+        android:background="@color/darkred"
+        android:onClick="slettDialog"
+        android:orientation="horizontal"
+        android:padding="5dp">
 
-    <Button
-        android:text="Lagre"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_baseline_delete_outline_24" />
+
+        <TextView
+            android:layout_width="76dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Slett hus"
+            android:textColor="@color/white" />
+    </LinearLayout>
 
 
-</LinearLayout>
+
+</RelativeLayout>
