@@ -75,6 +75,8 @@ public class MyDialog extends DialogFragment {
             et.setText(etasjer);
             bes.setText(beskrivelse);
             adresse.setText(addresse);
+        } else {
+            adresse.setText(addresse);
         }
 
         lagre.setOnClickListener(new View.OnClickListener() {
@@ -90,10 +92,13 @@ public class MyDialog extends DialogFragment {
                 } else {
 
                     ((MapsActivity)getActivity()).slett(idinn);
-
                     ((MapsActivity)getActivity()).lagre(bes.getText().toString(),et.getText().toString(), adresse.getText().toString(),lng,lat);
                     getDialog().dismiss();
                     Toast.makeText(getContext(), "Lagret hus!!", Toast.LENGTH_SHORT).show();
+
+
+
+
 
                 }
             }

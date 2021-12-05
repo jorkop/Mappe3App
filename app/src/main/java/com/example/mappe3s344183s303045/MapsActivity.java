@@ -43,6 +43,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private ActivityMapsBinding binding;
     public JSONArray jsonarr = new JSONArray();
+    String longitude, latitude, beskrivelse, etasje, adresse, innlong, innlat;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,36 +86,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 markerOptions.position(latLng);
 
+               String result = addresseSjekk(latLng.latitude,latLng.longitude);
 
-                Geocoder geocoder = new Geocoder(getBaseContext(), Locale.getDefault()); String result = null;
-                try {
-                    List<Address> addressList = geocoder.getFromLocation(
-                            latLng.latitude, latLng.longitude, 1);
-                    if (addressList != null && addressList.size() > 0) {
-                        Address address = addressList.get(0);
-                        StringBuilder sb = new StringBuilder();
-                        for (int i = 0; i < address.getMaxAddressLineIndex(); i++) {
-                            sb.append(address.getAddressLine(i)).append("\n"); }
-                        sb.append(address.getSubLocality()).append("\n");
-                        result = sb.toString();
-                        markerOptions.title(result); }
-                } catch (IOException e) {
-                    Log.e("Feil", "Unable connect to Geocoder", e); }
+                markerOptions.title(result);
 
 
                 //markerOptions.title("Lat: " + latLng.latitude + ". Long: " + latLng.longitude);
+                if (!result.equals("null null")) {
+                    mMap.clear(); //Denne fjerner alle markører på kartet
 
-                mMap.clear(); //Denne fjerner alle markører på kartet
+                    mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
 
-                mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+                    mMap.addMarker(markerOptions);
 
-                mMap.addMarker(markerOptions);
-
-
-                //Kjører all kode i getJSON. Kjøres hver gang bruker trykker på kartet
-                //Bør finne en annen løsning på dette?
-                getJSON task = new getJSON();
-                task.execute("http://studdata.cs.oslomet.no/~dbuser14/houseout.php");
+                    //Kjører all kode i getJSON. Kjøres hver gang bruker trykker på kartet
+                    //Bør finne en annen løsning på dette?
+                    getJSON task = new getJSON();
+                    task.execute("http://studdata.cs.oslomet.no/~dbuser14/houseout.php");
+                } else {
+                    Toast.makeText(getApplicationContext(), "Ikke gyldig adresse. \n Prøv igjen", Toast.LENGTH_SHORT).show();
+                }
 
             }
 
@@ -147,19 +140,47 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                     }
                 } else {
+                    Double dlng = marker.getPosition().longitude;
+                    String lng = String.valueOf(dlng);
+                    Double dlat = marker.getPosition().latitude;
+                    String lat = String.valueOf(dlat);
 
-                    String lng = String.valueOf(marker.getPosition().longitude);
-                    String lat = String.valueOf(marker.getPosition().latitude);
+                    String adresse = addresseSjekk(dlat,dlng);
 
-                    System.out.println("Lat: " + lat + " Long: " + lng);
-
-                    visDialog("", "", "", "", lng, lat);
-
+                    if (!adresse.equals("null null")) {
+                        visDialog("", "", "", adresse, lng, lat);
+                    } else {
+                        Toast.makeText(getApplicationContext(), "idiot", Toast.LENGTH_SHORT).show();
+                    }
 
                 }
                 return false;
             }
         });
+    }
+
+    public String addresseSjekk(Double latitude, Double longitude) {
+        Geocoder geocoder = new Geocoder(getBaseContext(), Locale.getDefault());
+        String result = null;
+        try {
+            List<Address> addressList = geocoder.getFromLocation(
+                    latitude, longitude, 1);
+            if (addressList != null && addressList.size() > 0) {
+                Address address = addressList.get(0);
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < address.getMaxAddressLineIndex(); i++) {
+                    sb.append(address.getAddressLine(i)).append("\n");
+                }
+                sb.append(address.getThoroughfare()).append(" ").append(address.getSubThoroughfare());
+                result = sb.toString();
+                Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT).show();
+
+            }
+        } catch (IOException e) {
+            Log.e("Feil", "Unable connect to Geocoder", e);
+        }
+        return result;
+
     }
 
 
@@ -206,14 +227,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public void lagre(String besk, String etasj, String adress, String lng, String lat){
-        putInfo task = new putInfo();
-        String a = "http://studdata.cs.oslomet.no/~dbuser14/housein.php/?description=" + besk +
-                "&stories=" + etasj + "&address=" + adress + "&longitude=" + lng + "&latitude=" + lat;
-        String s = a.replaceAll(" ","%20");
-        task.execute(s);
-        mMap.clear();
-        getJSON task2 = new getJSON();
-        task2.execute("http://studdata.cs.oslomet.no/~dbuser14/houseout.php");
+        GetLocationTask lokasjon = new GetLocationTask(adress);
+        lokasjon.execute();
+
+        beskrivelse = besk;
+        etasje = etasj;
+        adresse = adress;
+        innlong = lng;
+        innlat = lat;
+
+
+
+
+
     }
 
 
@@ -278,17 +304,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     String address = jsonobject.getString("address");
                     String id = jsonobject.getString("id");
 
-                    double lat = Double.parseDouble(jsonobject.getString("latitude"));
-                    double lng = Double.parseDouble(jsonobject.getString("longitude"));
+                    try {
+                        double lat = Double.parseDouble(jsonobject.getString("latitude"));
+                        double lng = Double.parseDouble(jsonobject.getString("longitude"));
+
                     LatLng nyMarker = new LatLng(lat, lng);
                     marker = mMap.addMarker(new MarkerOptions()
                             .position(nyMarker)
-                            .title(name)
-                            .snippet("Stories: " + stories + "\n" +
-                                    "Address: " + address + "\n" +
-                                    "Address: " + address));
+                            .title(address)
+                            .snippet("Endre info..."));
                     marker.setTag(id);
-
+                    }catch(Exception e ){
+                        System.out.println("Feil: " + e);
+                    }
 
                 }
             } catch (JSONException e) {
@@ -345,4 +373,77 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
+    private class GetLocationTask extends AsyncTask<Void, Void, Double[]> {
+        JSONObject jsonObject;
+        String address;
+        Double[] lokasjon = new Double[2];
+
+        public GetLocationTask(String a) {
+            this.address = a;
+        }
+
+        @Override
+        protected Double[] doInBackground(Void... params) {
+            String s = "";
+            String output = "";
+            String query = "https://maps.googleapis.com/maps/api/geocode/json?address="+ address.replaceAll(" ", "%20") + "&key=AIzaSyBQ_LyB83r-mR12FX3g6FBtCCKpJxcRq44";
+            try {
+                URL urlen = new URL(query);
+                HttpURLConnection conn = (HttpURLConnection) urlen.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("Accept", "application/json");
+                if (conn.getResponseCode() != 200) {
+                    throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode());
+                }
+                BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+                while ((s = br.readLine()) != null) {
+                    output = output + s;
+                }
+                jsonObject = new JSONObject(output.toString());
+                conn.disconnect();
+                Double lon = Double.valueOf(0);
+                Double lat = Double.valueOf(0);
+                lon =((JSONArray) jsonObject.get("results")).getJSONObject(0).getJSONObject("geometry").getJSONObject("location").getDouble("lng");
+                lat = ((JSONArray) jsonObject.get("results")).getJSONObject(0).getJSONObject("geometry").getJSONObject("location").getDouble("lat");
+                lokasjon = new Double[]{lon, lat};
+
+                return lokasjon;
+            }
+            catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            catch (JSONException ex) {
+                ex.printStackTrace();
+            }
+            return lokasjon;
+        }
+
+        @Override
+        protected void onPostExecute(Double[] resultat) {
+            longitude = resultat[0].toString();
+            latitude = resultat[1].toString();
+
+            putInfo task = new putInfo();
+
+            if (innlong.equals(longitude) && innlat.equals(latitude)) {
+                String a = "http://studdata.cs.oslomet.no/~dbuser14/housein.php/?description=" + beskrivelse +
+                        "&stories=" + etasje + "&address=" + adresse + "&longitude=" + innlong + "&latitude=" + innlat;
+                String s = a.replaceAll(" ", "%20");
+                task.execute(s);
+                mMap.clear();
+                getJSON task2 = new getJSON();
+                task2.execute("http://studdata.cs.oslomet.no/~dbuser14/houseout.php");
+            } else {
+                String a = "http://studdata.cs.oslomet.no/~dbuser14/housein.php/?description=" + beskrivelse +
+                        "&stories=" + etasje + "&address=" + adresse + "&longitude=" + longitude + "&latitude=" + latitude;
+                String s = a.replaceAll(" ", "%20");
+                task.execute(s);
+                mMap.clear();
+                getJSON task2 = new getJSON();
+                task2.execute("http://studdata.cs.oslomet.no/~dbuser14/houseout.php");
+            }
+
+
+        }
+    }
 }
