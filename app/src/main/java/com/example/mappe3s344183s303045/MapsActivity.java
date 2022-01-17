@@ -386,7 +386,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         protected Double[] doInBackground(Void... params) {
             String s = "";
             String output = "";
-            String query = "https://maps.googleapis.com/maps/api/geocode/json?address="+ address.replaceAll(" ", "%20") + "&key=AIzaSyBQ_LyB83r-mR12FX3g6FBtCCKpJxcRq44";
+            String query = "https://maps.googleapis.com/maps/api/geocode/json?address="+ address.replaceAll(" ", "%20") + "";
             try {
                 URL urlen = new URL(query);
                 HttpURLConnection conn = (HttpURLConnection) urlen.openConnection();
